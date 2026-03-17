@@ -1,0 +1,59 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using SchoolSpeedrunApi.Types.Enums;
+
+namespace SchoolSpeedrunApi.Types.Database;
+
+/// <summary>
+/// A collection of two Locations with different positions
+/// </summary>
+public class DbRun
+{
+    public DbRun() {}
+
+    public DbRun(DbLocation startLocation, DbLocation endLocation, DbUser user)
+    {
+        StartLocationId = startLocation.Id;
+        EndLocationId = endLocation.Id;
+        UserCardGuid = user.CardGuid;
+        FinishDate = endLocation.Date;
+        Milliseconds = (endLocation.Date - startLocation.Date).TotalMilliseconds;
+        StartPosition = startLocation.Position;
+        EndPosition = endLocation.Position;
+    }
+    
+    [Key]
+    public int Id { get; set; }
+
+    [Required]
+    public DateTime FinishDate { get; set; }
+    
+    public double Milliseconds { get; init; }
+    public Position StartPosition { get; init; }
+    public Position EndPosition { get; init; }
+
+    [JsonIgnore]
+    [Required]
+    public int StartLocationId { get; set; }
+    
+    [JsonIgnore]
+    [ForeignKey(nameof(StartLocationId))]
+    public DbLocation StartLocation { get; set; } = null!;
+
+    [JsonIgnore]
+    [Required]
+    public int EndLocationId { get; set; }
+    
+    [JsonIgnore]
+    [ForeignKey(nameof(EndLocationId))]
+    public DbLocation EndLocation { get; set; } = null!;
+
+    [JsonIgnore]
+    [Required]
+    [MaxLength(128)]
+    public string UserCardGuid { get; set; } = null!;
+
+    [ForeignKey(nameof(UserCardGuid))]
+    public DbUser User { get; set; } = null!;
+}
