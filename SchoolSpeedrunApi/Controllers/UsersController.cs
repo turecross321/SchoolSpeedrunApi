@@ -61,4 +61,14 @@ public class UsersController(AppDbContext db, IPhotoDatastore datastore) : Contr
 
         return File(ms, "application/octet-stream");
     }
+
+    [HttpGet("{guid}")]
+    public Task<IActionResult> GetUserWithGuid(string guid)
+    {
+        DbUser? user = db.Users.FirstOrDefault(u => u.CardGuid == guid);
+        if (user == null)
+            return Task.FromResult<IActionResult>(NotFound());
+
+        return Task.FromResult<IActionResult>(Ok(user));
+    }
 }
