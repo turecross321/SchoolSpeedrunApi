@@ -16,12 +16,32 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddControllers();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 // OpenAPI/Swagger
 builder.Services.AddOpenApi();             // generates OpenAPI JSON
 builder.Services.AddEndpointsApiExplorer(); // needed for SwaggerUI
 builder.Services.AddSwaggerGen();           // adds Swagger UI
 
 WebApplication app = builder.Build();
+
+// Automatically apply migrations
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -30,6 +50,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();      // serves interactive UI at /swagger
     app.MapOpenApi();        // still optional if you want /openapi.json
 }
+
+app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
