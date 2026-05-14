@@ -2,4 +2,4 @@
 
 namespace SchoolSpeedrunApi.Types.RequestBodies;
 
-public record RegisterRequest(string CardGuid, string Username, SchoolProgram SchoolProgram);
+public record RegisterRequest(Guid RegistrationGuid, string Username, SchoolProgram SchoolProgram);

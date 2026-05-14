@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.InteropServices.JavaScript;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SchoolSpeedrunApi.Services;
@@ -11,12 +12,32 @@ namespace SchoolSpeedrunApi.Controllers;
 [Route("[controller]")]
 public class UsersController(AppDbContext db, IPhotoDatastore datastore) : ControllerBase
 {
-    [HttpPost("register")]
-    public IActionResult Register([FromBody]  RegisterRequest request)
+    [HttpPost("requestRegistration")]
+    public IActionResult RequestRegistration([FromBody] RequestRegistrationRequest request)
     {
         DbUser? user = db.Users.FirstOrDefault(u => u.CardGuid == request.CardGuid);
         if (user != null)
             return BadRequest();
+        
+        EntityEntry<DbRegistration> entry = db.Registrations.Add(new DbRegistration(request.CardGuid));
+        db.SaveChanges();
+        
+        return Ok(entry.Entity);
+    }
+    
+    [HttpPost("register")]
+    public IActionResult Register([FromBody] RegisterRequest request)
+    {
+        DbRegistration? registration = db.Registrations.FirstOrDefault(r => r.Id == request.RegistrationGuid);
+        if (registration == null)
+            return NotFound();
+
+        if (DateTimeOffset.UtcNow > registration.ExpiryDate)
+            return NotFound();
+        
+        DbUser? user = db.Users.FirstOrDefault(u => u.CardGuid == registration.CardGuid);
+        if (user != null)
+            return NotFound();
         
         if (!Regex.IsMatch(request.Username, @"^[a-zA-ZåäöÅÄÖ0-9]{3,36}$"))
         {
@@ -25,7 +46,7 @@ public class UsersController(AppDbContext db, IPhotoDatastore datastore) : Contr
         
         EntityEntry<DbUser> entry = db.Users.Add(new DbUser
         {
-            CardGuid = request.CardGuid,
+            CardGuid = registration.CardGuid,
             Username = request.Username,
             RegistrationDate = DateTimeOffset.UtcNow,
             SchoolProgram = request.SchoolProgram

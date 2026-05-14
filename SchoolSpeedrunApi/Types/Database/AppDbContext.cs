@@ -5,6 +5,7 @@ namespace SchoolSpeedrunApi.Types.Database;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    public DbSet<DbRegistration> Registrations { get; set; }
     public DbSet<DbUser> Users { get; set; }
     public DbSet<DbLocation> Locations { get; set; }
     public DbSet<DbRun> Runs { get; set; }
