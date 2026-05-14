@@ -20,10 +20,9 @@ public class DbLocation
     // Foreign key to user
     [JsonIgnore]
     [Required]
-    [MaxLength(128)]
-    public string UserCardGuid { get; set; } = null!;
+    public int UserId { get; init; }
 
-    [ForeignKey(nameof(UserCardGuid))]
+    [ForeignKey(nameof(UserId))]
     public DbUser User { get; set; } = null!;
 
     [JsonIgnore]

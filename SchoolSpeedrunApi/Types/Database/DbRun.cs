@@ -16,7 +16,7 @@ public class DbRun
     {
         StartLocationId = startLocation.Id;
         EndLocationId = endLocation.Id;
-        UserCardGuid = user.CardGuid;
+        UserId = user.Id;
         FinishDate = endLocation.Date;
         Milliseconds = (endLocation.Date - startLocation.Date).TotalMilliseconds;
         StartPosition = startLocation.Position;
@@ -51,9 +51,8 @@ public class DbRun
 
     [JsonIgnore]
     [Required]
-    [MaxLength(128)]
-    public string UserCardGuid { get; set; } = null!;
+    public int UserId { get; set; }
 
-    [ForeignKey(nameof(UserCardGuid))]
+    [ForeignKey(nameof(UserId))]
     public DbUser User { get; set; } = null!;
 }

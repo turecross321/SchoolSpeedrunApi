@@ -16,7 +16,7 @@ public class RunsController(AppDbContext db) : ControllerBase
             .Include(r => r.StartLocation)
             .Include(r => r.EndLocation)
             .Where(r => !db.Runs
-                .Any(r2 => r2.UserCardGuid == r.UserCardGuid && r2.Milliseconds < r.Milliseconds))
+                .Any(r2 => r2.UserId == r.UserId && r2.Milliseconds < r.Milliseconds))
             .OrderBy(r => r.Milliseconds)
             .ToList();
     }

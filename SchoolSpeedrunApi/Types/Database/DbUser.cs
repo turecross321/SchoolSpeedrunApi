@@ -1,16 +1,22 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using SchoolSpeedrunApi.Types.Enums;
 
 namespace SchoolSpeedrunApi.Types.Database;
 
-[PrimaryKey(nameof(CardGuid))]
+[PrimaryKey(nameof(Id))]
 public class DbUser
 {
     [Key]
-    [MaxLength(128)]
-    public required string CardGuid { get; init; }
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; init; }
+    
+    // Acts as the user's password and should therefore never be shown
+    [JsonIgnore] 
+    [MaxLength(128)] 
+    public string CardGuid { get; init; } = null!;
     
     [MaxLength(128)]
     public required string Username { get; init; }

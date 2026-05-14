@@ -26,7 +26,7 @@ public class LocationsController(AppDbContext db) : ControllerBase
 
         DbLocation? lastLocation = user.Locations.LastOrDefault();
         EntityEntry<DbLocation> currentLocationEntry = db.Locations
-            .Add(new DbLocation { Position = request.Position, Date = request.Date, UserCardGuid = user.CardGuid });
+            .Add(new DbLocation { Position = request.Position, Date = request.Date, UserId = user.Id });
         DbLocation currentLocation = currentLocationEntry.Entity;
         await db.SaveChangesAsync();
 
@@ -55,7 +55,7 @@ public class LocationsController(AppDbContext db) : ControllerBase
 
         return db.Locations
             .Where(l => l.Date >= earliest)
-            .GroupBy(l => l.UserCardGuid)
+            .GroupBy(l => l.UserId)
             .Select(g => g.OrderByDescending(l => l.Date).First())
             .ToList();
     }

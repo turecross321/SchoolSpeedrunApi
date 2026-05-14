@@ -50,10 +50,10 @@ public class UsersController(AppDbContext db, IPhotoDatastore datastore) : Contr
         return Ok();
     }
     
-    [HttpGet("{guid}/profilePicture")]
-    public async Task<IActionResult> GetProfilePicture(string guid)
+    [HttpGet("{id}/profilePicture")]
+    public async Task<IActionResult> GetProfilePicture(int id)
     {
-        DbUser? user = db.Users.FirstOrDefault(u => u.CardGuid == guid);
+        DbUser? user = db.Users.FirstOrDefault(u => u.Id == id);
         if (user?.ProfilePictureHash == null)
             return NotFound();
         

@@ -30,14 +30,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<DbRun>()
             .HasOne(r => r.User)
             .WithMany(u => u.Runs)
-            .HasForeignKey(r => r.UserCardGuid)
+            .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Configure DbLocation -> User
         modelBuilder.Entity<DbLocation>()
             .HasOne(l => l.User)
             .WithMany(u => u.Locations)
-            .HasForeignKey(l => l.UserCardGuid)
+            .HasForeignKey(l => l.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
