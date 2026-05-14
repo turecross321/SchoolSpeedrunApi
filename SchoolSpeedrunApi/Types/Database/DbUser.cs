@@ -18,7 +18,7 @@ public class DbUser
     [MaxLength(128)] 
     public string CardGuid { get; init; } = null!;
     
-    [MaxLength(128)]
+    [MaxLength(36)]
     public required string Username { get; init; }
     
     public required DateTimeOffset RegistrationDate { get; init; }

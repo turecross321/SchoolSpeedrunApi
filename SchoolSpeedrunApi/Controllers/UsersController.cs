@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SchoolSpeedrunApi.Services;
 using SchoolSpeedrunApi.Types.Database;
@@ -16,6 +17,11 @@ public class UsersController(AppDbContext db, IPhotoDatastore datastore) : Contr
         DbUser? user = db.Users.FirstOrDefault(u => u.CardGuid == request.CardGuid);
         if (user != null)
             return BadRequest();
+        
+        if (!Regex.IsMatch(request.Username, @"^[a-zA-ZåäöÅÄÖ0-9]{3,36}$"))
+        {
+            return BadRequest("Invalid username. Should be \"^[a-zA-ZåäöÅÄÖ0-9]{3,36}$\"");
+        }
         
         EntityEntry<DbUser> entry = db.Users.Add(new DbUser
         {
