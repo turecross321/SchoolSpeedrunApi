@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion; // Tillagd för ValueConverter
 
 namespace SchoolSpeedrunApi.Types.Database;
 
@@ -11,6 +12,33 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        
+        if (Database.IsSqlite())
+        {
+            // Converts to ISO 8601-sträng ("O") during storage, och then back to DateTimeOffset
+            var dateTimeOffsetConverter = new ValueConverter<DateTimeOffset, string>(
+                v => v.ToString("O"),
+                v => DateTimeOffset.Parse(v));
+
+            var nullableDateTimeOffsetConverter = new ValueConverter<DateTimeOffset?, string>(
+                v => v.HasValue ? v.Value.ToString("O") : null!,
+                v => string.IsNullOrEmpty(v) ? null : DateTimeOffset.Parse(v));
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.ClrType == typeof(DateTimeOffset))
+                    {
+                        property.SetValueConverter(dateTimeOffsetConverter);
+                    }
+                    else if (property.ClrType == typeof(DateTimeOffset?))
+                    {
+                        property.SetValueConverter(nullableDateTimeOffsetConverter);
+                    }
+                }
+            }
+        }
 
         // Configure DbRun -> StartLocation
         modelBuilder.Entity<DbRun>()

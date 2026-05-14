@@ -51,10 +51,11 @@ public class LocationsController(AppDbContext db) : ControllerBase
     [HttpGet("recent")]
     public IEnumerable<DbLocation> GetRecentLocations()
     {
-        DateTime earliest = DateTime.Now.Subtract(TimeSpan.FromMinutes(10));
+        DateTimeOffset earliest = DateTimeOffset.UtcNow.Subtract(TimeSpan.FromMinutes(10));
 
         return db.Locations
             .Where(l => l.Date >= earliest)
+            .Include(l => l.User)
             .GroupBy(l => l.UserId)
             .Select(g => g.OrderByDescending(l => l.Date).First())
             .ToList();
