@@ -1,3 +1,5 @@
-﻿namespace SchoolSpeedrunApi.Types.RequestBodies;
+﻿using SchoolSpeedrunApi.Types.Enums;
 
-public record RegisterRequest(string CardGuid, string Username);
+namespace SchoolSpeedrunApi.Types.RequestBodies;
+
+public record RegisterRequest(string CardGuid, string Username, SchoolProgram SchoolProgram);

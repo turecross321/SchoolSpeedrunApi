@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using SchoolSpeedrunApi.Types.Enums;
 
 namespace SchoolSpeedrunApi.Types.Database;
 
@@ -9,10 +10,13 @@ public class DbUser
 {
     [Key]
     [MaxLength(128)]
-    public string CardGuid { get; init; } = null!;
+    public required string CardGuid { get; init; }
     
     [MaxLength(128)]
     public required string Username { get; init; }
+    
+    public required DateTimeOffset RegistrationDate { get; init; }
+    public required SchoolProgram SchoolProgram { get; init; }
     
     [JsonIgnore]
     [MaxLength(64)]

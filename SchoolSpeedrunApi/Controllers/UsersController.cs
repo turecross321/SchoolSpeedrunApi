@@ -20,7 +20,9 @@ public class UsersController(AppDbContext db, IPhotoDatastore datastore) : Contr
         EntityEntry<DbUser> entry = db.Users.Add(new DbUser
         {
             CardGuid = request.CardGuid,
-            Username = request.Username
+            Username = request.Username,
+            RegistrationDate = DateTimeOffset.UtcNow,
+            SchoolProgram = request.SchoolProgram
         });
         user = entry.Entity;
         db.SaveChanges();

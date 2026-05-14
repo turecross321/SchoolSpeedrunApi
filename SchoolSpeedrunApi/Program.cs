@@ -35,10 +35,9 @@ builder.Services.AddSwaggerGen();           // adds Swagger UI
 
 WebApplication app = builder.Build();
 
-// Automatically apply migrations
-using (IServiceScope scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
-    AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
     db.Database.Migrate();
 }

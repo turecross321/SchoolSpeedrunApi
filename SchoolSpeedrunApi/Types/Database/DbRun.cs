@@ -27,7 +27,7 @@ public class DbRun
     public int Id { get; set; }
 
     [Required]
-    public DateTime FinishDate { get; set; }
+    public DateTimeOffset FinishDate { get; set; }
     
     public double Milliseconds { get; init; }
     public Position StartPosition { get; init; }
