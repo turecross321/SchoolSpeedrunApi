@@ -12,14 +12,29 @@ namespace SchoolSpeedrunApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Registrations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CardGuid = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
+                    CreationDate = table.Column<string>(type: "TEXT", nullable: false),
+                    ExpiryDate = table.Column<string>(type: "TEXT", nullable: false),
+                    Scanned = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Registrations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     CardGuid = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
-                    Username = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
-                    RegistrationDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    Username = table.Column<string>(type: "TEXT", maxLength: 36, nullable: false),
+                    RegistrationDate = table.Column<string>(type: "TEXT", nullable: false),
                     SchoolProgram = table.Column<int>(type: "INTEGER", nullable: false),
                     ProfilePictureHash = table.Column<string>(type: "TEXT", maxLength: 64, nullable: true)
                 },
@@ -34,7 +49,7 @@ namespace SchoolSpeedrunApi.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Date = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    Date = table.Column<string>(type: "TEXT", nullable: false),
                     Position = table.Column<int>(type: "INTEGER", nullable: false),
                     UserId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
@@ -55,7 +70,7 @@ namespace SchoolSpeedrunApi.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    FinishDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    FinishDate = table.Column<string>(type: "TEXT", nullable: false),
                     Milliseconds = table.Column<double>(type: "REAL", nullable: false),
                     StartPosition = table.Column<int>(type: "INTEGER", nullable: false),
                     EndPosition = table.Column<int>(type: "INTEGER", nullable: false),
@@ -110,6 +125,9 @@ namespace SchoolSpeedrunApi.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Registrations");
+
             migrationBuilder.DropTable(
                 name: "Runs");
 
