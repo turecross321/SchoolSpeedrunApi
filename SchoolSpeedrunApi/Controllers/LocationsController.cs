@@ -67,6 +67,7 @@ public class LocationsController(AppDbContext db) : ControllerBase
             .Include(l => l.User)
             .Where(l => latestLocationIds.Contains(l.Id))
             .Where(l => !l.StartRuns.Any() && !l.EndRuns.Any())
+            .OrderByDescending(l => l.Date)
             .ToList();
     }
 }
