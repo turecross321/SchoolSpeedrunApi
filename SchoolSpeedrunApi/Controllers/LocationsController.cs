@@ -72,9 +72,9 @@ public class LocationsController(AppDbContext db) : ControllerBase
             .Include(l => l.User)
             .Include(l => l.StartRuns)
             .Include(l => l.EndRuns)
-            .Where(l => !l.StartRuns.Any() && !l.EndRuns.Any())
             .GroupBy(l => l.UserId)
             .Select(g => g.OrderByDescending(l => l.Date).First())
+            .Where(l => !l.StartRuns.Any() && !l.EndRuns.Any())
             .ToList();
     }
 }
