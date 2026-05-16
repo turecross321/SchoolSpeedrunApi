@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion; // Tillagd för Val
 
 namespace SchoolSpeedrunApi.Types.Database;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public partial class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<DbRegistration> Registrations { get; set; }
     public DbSet<DbUser> Users { get; set; }

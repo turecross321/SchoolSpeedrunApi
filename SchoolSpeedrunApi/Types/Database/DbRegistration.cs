@@ -17,9 +17,7 @@ public class DbRegistration
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; }
-
-    // Acts as the user's password and should therefore never be shown
-    [JsonIgnore] 
+        
     [MaxLength(128)] public string CardGuid { get; init; }
     
     public DateTimeOffset CreationDate { get; init; }

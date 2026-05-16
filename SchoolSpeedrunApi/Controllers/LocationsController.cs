@@ -19,6 +19,7 @@ public class LocationsController(AppDbContext db) : ControllerBase
             .ThenInclude(dbLocation => dbLocation.StartRuns)
             .Include(dbUser => dbUser.Locations)
             .ThenInclude(dbLocation => dbLocation.EndRuns)
+            .Include(dbUser => dbUser.Runs)
             .FirstOrDefault(u => u.CardGuid == request.CardGuid);
         
         if (user == null)
@@ -30,18 +31,31 @@ public class LocationsController(AppDbContext db) : ControllerBase
         DbLocation currentLocation = currentLocationEntry.Entity;
         await db.SaveChangesAsync();
 
-        DbRun? run = null;
+        var bestRunsExcludingUser = db.BestRuns(user);
+        
+        DbRun? previousBestRun = user.Runs.MinBy(r => r.Milliseconds);
+        int? previousBestRunIndex = null;
+            
+        if (previousBestRun != null)
+            previousBestRunIndex = bestRunsExcludingUser
+            .Count(r => r.Milliseconds < previousBestRun.Milliseconds);
+        
+        DbRun? newRun = null;
+        int? newRunIndex = null;
         
         // If the last location has not been part of any runs, and it was in a different position than this new one, we create a run
         if (lastLocation?.StartRuns.Count == 0 && lastLocation.EndRuns.Count == 0 && lastLocation.Position != currentLocation.Position)
         {
             EntityEntry<DbRun> runEntry = db.Runs.Add(new DbRun(lastLocation, currentLocation, user));
-            run = runEntry.Entity;
+            newRun = runEntry.Entity;
             await db.SaveChangesAsync();
+            
+            newRunIndex = bestRunsExcludingUser
+                .Count(r => r.Milliseconds < newRun.Milliseconds);
         }
         
         
-        return Ok(new SubmitLocationResponse(currentLocation, run));
+        return Ok(new SubmitLocationResponse(currentLocation, newRun, newRunIndex, previousBestRun, previousBestRunIndex));
     }
 
     /// <summary>
@@ -56,6 +70,9 @@ public class LocationsController(AppDbContext db) : ControllerBase
         return db.Locations
             .Where(l => l.Date >= earliest)
             .Include(l => l.User)
+            .Include(l => l.StartRuns)
+            .Include(l => l.EndRuns)
+            .Where(l => !l.StartRuns.Any() && !l.EndRuns.Any())
             .GroupBy(l => l.UserId)
             .Select(g => g.OrderByDescending(l => l.Date).First())
             .ToList();

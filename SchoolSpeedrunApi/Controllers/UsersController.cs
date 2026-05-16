@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SchoolSpeedrunApi.Services;
 using SchoolSpeedrunApi.Types.Database;
 using SchoolSpeedrunApi.Types.RequestBodies;
+using SchoolSpeedrunApi.Types.ResponseBodies;
 
 namespace SchoolSpeedrunApi.Controllers;
 
@@ -23,6 +24,32 @@ public class UsersController(AppDbContext db, IPhotoDatastore datastore) : Contr
         db.SaveChanges();
         
         return Ok(entry.Entity);
+    }
+
+    [HttpGet("registrations/{guid}/scanned")]
+    public IActionResult IsRegistrationScanned([FromRoute] Guid guid)
+    {
+        DbRegistration? registration = db.Registrations.FirstOrDefault(r => r.Id == guid);
+        if (registration == null)
+            return NotFound();
+
+        return Ok(new IsRegistrationScannedResponse(registration.Scanned));
+    }
+
+    [HttpGet("registrations/{guid}")]
+    public IActionResult GetRegistration([FromRoute] Guid guid)
+    {
+        DbRegistration? registration = db.Registrations.FirstOrDefault(r => r.Id == guid);
+        if (registration == null || DateTimeOffset.UtcNow > registration.ExpiryDate)
+            return NotFound();
+        
+        if (registration.Scanned)
+            return Forbid("Already scanned");
+
+        registration.Scanned = true;
+        db.SaveChanges();
+
+        return Ok(registration);
     }
     
     [HttpPost("register")]
@@ -43,6 +70,10 @@ public class UsersController(AppDbContext db, IPhotoDatastore datastore) : Contr
         {
             return BadRequest("Invalid username. Should be \"^[a-zA-ZåäöÅÄÖ0-9]{3,36}$\"");
         }
+
+        DbUser? userWithName = db.Users.FirstOrDefault(u => u.Username == request.Username);
+        if (userWithName != null) 
+            return BadRequest("Username taken");
         
         EntityEntry<DbUser> entry = db.Users.Add(new DbUser
         {
@@ -91,10 +122,20 @@ public class UsersController(AppDbContext db, IPhotoDatastore datastore) : Contr
         return File(ms, "application/octet-stream");
     }
 
-    [HttpGet("{guid}")]
-    public Task<IActionResult> GetUserWithGuid(string guid)
+    [HttpGet("cardGuid/{guid}")]
+    public Task<IActionResult> GetUserWithCardGuid(string guid)
     {
         DbUser? user = db.Users.FirstOrDefault(u => u.CardGuid == guid);
+        if (user == null)
+            return Task.FromResult<IActionResult>(NotFound());
+
+        return Task.FromResult<IActionResult>(Ok(user));
+    }
+    
+    [HttpGet("id/{id}")]
+    public Task<IActionResult> GetUserWithId(int id)
+    {
+        DbUser? user = db.Users.FirstOrDefault(u => u.Id == id);
         if (user == null)
             return Task.FromResult<IActionResult>(NotFound());
 
