@@ -55,13 +55,17 @@ public class LocationsController(AppDbContext db) : ControllerBase
     {
         DateTimeOffset earliest = DateTimeOffset.UtcNow.Subtract(TimeSpan.FromMinutes(10));
 
-        return db.Locations
+        // 1. Get the latest location ID for every active user within the timeframe
+        var latestLocationIds = db.Locations
             .Where(l => l.Date >= earliest)
-            .Include(l => l.User)
-            .Include(l => l.StartRuns)
-            .Include(l => l.EndRuns)
             .GroupBy(l => l.UserId)
-            .Select(g => g.OrderByDescending(l => l.Date).First())
+            .Select(g => g.OrderByDescending(l => l.Date).Select(l => l.Id).First());
+
+        // 2. Fetch the full objects only for those IDs, 
+        // and ONLY if they haven't started/ended a run.
+        return db.Locations
+            .Include(l => l.User)
+            .Where(l => latestLocationIds.Contains(l.Id))
             .Where(l => !l.StartRuns.Any() && !l.EndRuns.Any())
             .ToList();
     }
