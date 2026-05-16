@@ -2,4 +2,4 @@
 
 namespace SchoolSpeedrunApi.Types.ResponseBodies;
 
-public record SubmitLocationResponse(DbLocation SubmittedLocation, DbRun? NewRun, int? NewRunIndex, DbRun? PreviousBestRun, int? PreviousBestRunIndex);
+public record SubmitLocationResponse(DbLocation SubmittedLocation, DbRun? NewRun, DbRun? PreviousBestRun);

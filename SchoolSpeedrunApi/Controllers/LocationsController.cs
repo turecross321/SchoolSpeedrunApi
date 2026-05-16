@@ -30,18 +30,9 @@ public class LocationsController(AppDbContext db) : ControllerBase
             .Add(new DbLocation { Position = request.Position, Date = request.Date, UserId = user.Id });
         DbLocation currentLocation = currentLocationEntry.Entity;
         await db.SaveChangesAsync();
-
-        var bestRunsExcludingUser = db.BestRuns(user);
         
         DbRun? previousBestRun = user.Runs.MinBy(r => r.Milliseconds);
-        int? previousBestRunIndex = null;
-            
-        if (previousBestRun != null)
-            previousBestRunIndex = bestRunsExcludingUser
-            .Count(r => r.Milliseconds < previousBestRun.Milliseconds);
-        
         DbRun? newRun = null;
-        int? newRunIndex = null;
         
         // If the last location has not been part of any runs, and it was in a different position than this new one, we create a run
         if (lastLocation?.StartRuns.Count == 0 && lastLocation.EndRuns.Count == 0 && lastLocation.Position != currentLocation.Position)
@@ -49,13 +40,10 @@ public class LocationsController(AppDbContext db) : ControllerBase
             EntityEntry<DbRun> runEntry = db.Runs.Add(new DbRun(lastLocation, currentLocation, user));
             newRun = runEntry.Entity;
             await db.SaveChangesAsync();
-            
-            newRunIndex = bestRunsExcludingUser
-                .Count(r => r.Milliseconds < newRun.Milliseconds);
         }
         
         
-        return Ok(new SubmitLocationResponse(currentLocation, newRun, newRunIndex, previousBestRun, previousBestRunIndex));
+        return Ok(new SubmitLocationResponse(currentLocation, newRun, previousBestRun));
     }
 
     /// <summary>
